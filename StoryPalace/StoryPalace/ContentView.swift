@@ -1,205 +1,157 @@
 import SwiftUI
 import AVFoundation
 
-// MARK: - Story Data
-struct Story: Identifiable {
-    let id = UUID()
-    let title: String
-    let audioFile: String
+// Model to hold the list of story titles
+class StoryModel: ObservableObject {
+    @Published var stories: [String] = [
+        "The Adventure of the Lost City",
+        "The Mystery of the Hidden Treasure",
+        "The Journey to the Enchanted Forest",
+        "The Tale of the Brave Knight",
+        "The Legend of the Golden Dragon"
+    ]
+    @Published var selectedStoryIndex: Int = 0
+    
+    var selectedStoryTitle: String {
+        return stories[selectedStoryIndex]
+    }
 }
 
-let stories = [
-    Story(title: "The Magical Forest", audioFile: "forest.mp3"),
-    Story(title: "The Brave Knight", audioFile: "knight.mp3"),
-    Story(title: "The Lost Treasure", audioFile: "treasure.mp3"),
-    Story(title: "The Space Adventure", audioFile: "space.mp3")
-]
-
-// MARK: - Main ContentView
-struct ContentView: View {
-    @State private var currentStoryIndex: Int = 0
-    @State private var isPlaying: Bool = false
-    @State private var audioPlayer: AVAudioPlayer?
-    @State private var synthesizer = AVSpeechSynthesizer()
+// Custom Rotation Knob View
+struct RotationKnob: View {
+    @Binding var rotationAngle: Double
+    @Binding var selectedStoryIndex: Int
+    let totalStories: Int
     
     var body: some View {
-        VStack {
-            Spacer()
-            
-            // Story Title
-            Text(stories[currentStoryIndex].title)
+        GeometryReader { geometry in
+            ZStack {
+                // Knob Circle
+                Circle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: min(geometry.size.width, geometry.size.height), height: min(geometry.size.width, geometry.size.height))
+                    .overlay(
+                        Circle()
+                            .stroke(Color.blue, lineWidth: 4)
+                    )
+                
+                // Indicator button
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.blue]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 40, height: 40)
+                    .offset(y: -min(geometry.size.width, geometry.size.height)/2 + 30)
+                    .shadow(color: .gray.opacity(0.5), radius: 3, x: 1, y: 1)
+                    .rotationEffect(.degrees(rotationAngle))
+                
+            }
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        let vector = CGVector(dx: value.location.x - geometry.size.width / 2, dy: value.location.y - geometry.size.height / 2)
+                        let angle = atan2(vector.dy, vector.dx) * 180 / .pi
+                        let newRotationAngle = (angle + 360).truncatingRemainder(dividingBy: 360)
+                        rotationAngle = newRotationAngle
+                        
+                        // Update selected story index based on rotation
+                        let stepSize = 360.0 / Double(totalStories)
+                        selectedStoryIndex = Int((newRotationAngle / stepSize).rounded()) % totalStories
+                    }
+            )
+        }
+    }
+}
+
+// Main View
+struct ContentView: View {
+    @StateObject private var storyModel = StoryModel()
+    @State private var rotationAngle: Double = 0.0
+    @State private var isPlaying: Bool = false
+    private let speechSynthesizer = AVSpeechSynthesizer()
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            // Selected Story Title
+            Text(storyModel.selectedStoryTitle)
                 .font(.title)
-                .fontWeight(.bold)
                 .padding()
             
-            Spacer()
+            // Rotation Knob
+            RotationKnob(rotationAngle: $rotationAngle, selectedStoryIndex: $storyModel.selectedStoryIndex, totalStories: storyModel.stories.count)
+                .frame(width: 200, height: 200)
+                .onChange(of: storyModel.selectedStoryIndex) { newIndex in
+                    speakStoryTitle()
+                }
             
-            // iPod Shuffle-Inspired Circle Layout
-            ZStack {
-                // Circular Background
-                Circle()
-                    .stroke(Color.green.opacity(0.3), lineWidth: 7)
-                    .frame(width: 320, height: 320)
-                
-                Circle()
-                    .stroke(Color.red.opacity(0.5), lineWidth: 7)
-                    .frame(width: 10, height: 10)
-                
-                
-                // Volume Control Buttons
-                VStack {
-                    Button(action: increaseVolume) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 50))
-                            //.padding()
-                            .background(Circle().fill(Color.white))
-                            .shadow(radius: 5)
-                    }
-                    .offset(y: -50) // Move the plus button up
-                    
-                    Spacer()
-                    
-                    Button(action: decreaseVolume) {
-                        Image(systemName: "minus.circle.fill")
-                            .font(.system(size: 50))
-                            //.padding()
-                            .background(Circle().fill(Color.white))
-                            .shadow(radius: 5)
-                    }
-                    .offset(y: 50) // Move the minus button down
+            // Navigation Buttons
+            HStack {
+                Button(action: {
+                    moveStory(by: -1)
+                }) {
+                    Image(systemName: "backward.end.fill")
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                        .foregroundColor(.blue)
                 }
-                .frame(height: 200)
                 
-                // Story Navigation Buttons
-                HStack {
-                    Button(action: previousStory) {
-                        Image(systemName: "backward.fill")
-                            .font(.system(size: 30))
-                            .padding()
-                            .background(Circle().fill(Color.white))
-                            .shadow(radius: 3)
-                    }
-                    .offset(x: -50) // Move the back button left
-                    
-                    Spacer()
-                    
-                    Button(action: nextStory) {
-                        Image(systemName: "forward.fill")
-                            .font(.system(size: 30))
-                            .padding()
-                            .background(Circle().fill(Color.white))
-                            .shadow(radius: 3)
-                    }
-                    .offset(x: 50) // Move the forward button right
-                }
-                .frame(width: 200)
+                Spacer()
                 
-                // Central Play/Pause Button
-                Button(action: togglePlayPause) {
-                    Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                        .font(.system(size: 60))
-                        .padding(20) // Add padding around the play/pause button
-                        .background(Circle().fill(Color.white))
-                        .shadow(radius: 5)
+                Button(action: {
+                    moveStory(by: 1)
+                }) {
+                    Image(systemName: "forward.end.fill")
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                        .foregroundColor(.blue)
                 }
-                .simultaneousGesture(
-                    LongPressGesture(minimumDuration: 1.0)
-                        .onEnded { _ in
-                            resetToStoryList()
-                        }
-                )
+                
             }
-            .frame(width: 250, height: 250)
+            .padding(.horizontal, 50)
             
-            Spacer()
+            // Play/Pause Button
+            Button(action: {
+                togglePlayPause()
+            }) {
+                Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                    .font(.system(size: 44))
+                    .foregroundColor(.blue)
+            }
         }
         .padding()
-        .onAppear {
-            setupAudioSession()
-        }
     }
     
-    // MARK: - Audio Setup
-    private func setupAudioSession() {
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.playback)
-            try AVAudioSession.sharedInstance().setActive(true)
-        } catch {
-            print("Failed to set up audio session: \(error)")
-        }
+    // Move to the next or previous story
+    private func moveStory(by offset: Int) {
+        let newIndex = (storyModel.selectedStoryIndex + offset + storyModel.stories.count) % storyModel.stories.count
+        storyModel.selectedStoryIndex = newIndex
+        rotationAngle = Double(newIndex) * (360.0 / Double(storyModel.stories.count))
     }
     
-    // MARK: - Play/Pause Toggle
+    // Toggle play/pause for speech
     private func togglePlayPause() {
         if isPlaying {
-            audioPlayer?.pause()
+            speechSynthesizer.pauseSpeaking(at: .immediate)
         } else {
-            playCurrentStory()
+            speakStoryTitle()
         }
         isPlaying.toggle()
     }
     
-    // MARK: - Play Current Story
-    private func playCurrentStory() {
-        let story = stories[currentStoryIndex]
-        
-        // Stop any previous audio
-        audioPlayer?.stop()
-        
-        // Load and play the new audio
-        if let url = Bundle.main.url(forResource: story.audioFile, withExtension: nil) {
-            do {
-                audioPlayer = try AVAudioPlayer(contentsOf: url)
-                audioPlayer?.play()
-            } catch {
-                print("Failed to play audio: \(error)")
-            }
-        } else {
-            print("Audio file not found: \(story.audioFile)")
-        }
-        
-        // Announce the story title
-        let utterance = AVSpeechUtterance(string: story.title)
-        synthesizer.speak(utterance)
-    }
-    
-    // MARK: - Story Navigation
-    private func nextStory() {
-        currentStoryIndex = (currentStoryIndex + 1) % stories.count
-        announceCurrentStory()
-    }
-    
-    private func previousStory() {
-        currentStoryIndex = (currentStoryIndex - 1 + stories.count) % stories.count
-        announceCurrentStory()
-    }
-    
-    private func announceCurrentStory() {
-        let story = stories[currentStoryIndex]
-        let utterance = AVSpeechUtterance(string: story.title)
-        synthesizer.speak(utterance)
-    }
-    
-    // MARK: - Volume Control
-    private func increaseVolume() {
-        audioPlayer?.volume += 0.1
-    }
-    
-    private func decreaseVolume() {
-        audioPlayer?.volume -= 0.1
-    }
-    
-    // MARK: - Reset to Story List
-    private func resetToStoryList() {
-        audioPlayer?.stop()
-        isPlaying = false
-        currentStoryIndex = 0
-        announceCurrentStory()
+    // Speak the current story title
+    private func speakStoryTitle() {
+        let utterance = AVSpeechUtterance(string: storyModel.selectedStoryTitle)
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        speechSynthesizer.speak(utterance)
     }
 }
 
-// MARK: - Preview
-struct ContentView_Previews: PreviewProvider {
+// Preview
+struct StoryTellingDeviceView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
