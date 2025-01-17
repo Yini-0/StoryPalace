@@ -1,19 +1,40 @@
 import SwiftUI
 import AVFoundation
 
-// Model to hold the list of story titles
-class StoryModel: ObservableObject {
-    @Published var stories: [String] = [
+// Model to hold the list of story titles and their corresponding MP3 file paths
+struct StoryModel {
+    var stories: [String] = [
         "The Adventure of the Lost City",
         "The Mystery of the Hidden Treasure",
         "The Journey to the Enchanted Forest",
         "The Tale of the Brave Knight",
         "The Legend of the Golden Dragon"
     ]
-    @Published var selectedStoryIndex: Int = 0
+    
+    var mp3Files: [String: String] = [
+        "The Adventure of the Lost City": "lost_city.mp3",
+        "The Mystery of the Hidden Treasure": "hidden_treasure.mp3",
+        "The Journey to the Enchanted Forest": "enchanted_forest.mp3",
+        "The Tale of the Brave Knight": "brave_knight.mp3",
+        "The Legend of the Golden Dragon": "golden_dragon.mp3"
+    ]
+    
+    var selectedStoryIndex: Int = 0
     
     var selectedStoryTitle: String {
         return stories[selectedStoryIndex]
+    }
+    
+    var selectedStoryMP3: String? {
+        return mp3Files[selectedStoryTitle]
+    }
+    
+    mutating func moveToNextStory() {
+        selectedStoryIndex = (selectedStoryIndex + 1) % stories.count
+    }
+    
+    mutating func moveToPreviousStory() {
+        selectedStoryIndex = (selectedStoryIndex - 1 + stories.count) % stories.count
     }
 }
 
@@ -69,9 +90,10 @@ struct RotationKnob: View {
 
 // Main View
 struct ContentView: View {
-    @StateObject private var storyModel = StoryModel()
+    @State private var storyModel = StoryModel()
     @State private var rotationAngle: Double = 0.0
     @State private var isPlaying: Bool = false
+    @State private var audioPlayer: AVAudioPlayer?
     private let speechSynthesizer = AVSpeechSynthesizer()
     
     var body: some View {
@@ -132,21 +154,48 @@ struct ContentView: View {
         rotationAngle = Double(newIndex) * (360.0 / Double(storyModel.stories.count))
     }
     
-    // Toggle play/pause for speech
+    // Toggle play/pause for audio
     private func togglePlayPause() {
         if isPlaying {
-            speechSynthesizer.pauseSpeaking(at: .immediate)
+            pauseAudio()
         } else {
-            speakStoryTitle()
+            playAudio()
         }
         isPlaying.toggle()
     }
     
-    // Speak the current story title
     private func speakStoryTitle() {
         let utterance = AVSpeechUtterance(string: storyModel.selectedStoryTitle)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        utterance.voice = AVSpeechSynthesisVoice(identifier: "en-GB")
         speechSynthesizer.speak(utterance)
+    }
+    
+    // Play the selected story's MP3 file
+    private func playAudio() {
+        guard let mp3File = storyModel.selectedStoryMP3,
+              let path = Bundle.main.path(forResource: mp3File, ofType: nil) else {
+            print("MP3 file not found")
+            return
+        }
+        
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
+            audioPlayer?.play()
+        } catch {
+            print("Error playing MP3 file: \(error.localizedDescription)")
+        }
+    }
+    
+    // Pause the audio
+    private func pauseAudio() {
+        audioPlayer?.pause()
+    }
+    
+    // Stop the audio
+    private func stopAudio() {
+        audioPlayer?.stop()
+        audioPlayer = nil
+        isPlaying = false
     }
 }
 
