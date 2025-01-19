@@ -149,6 +149,10 @@ struct ContentView: View {
     
     // Move to the next or previous story
     private func moveStory(by offset: Int) {
+        // Stop the currently playing audio
+        stopAudio()
+        
+        // Update the selected story index
         let newIndex = (storyModel.selectedStoryIndex + offset + storyModel.stories.count) % storyModel.stories.count
         storyModel.selectedStoryIndex = newIndex
         rotationAngle = Double(newIndex) * (360.0 / Double(storyModel.stories.count))
