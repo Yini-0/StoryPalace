@@ -12,9 +12,9 @@ struct StoryModel {
     ]
     
     var mp3Files: [String: String] = [
+        "The Journey to the Enchanted Forest": "Enchantedforest-e-1-WhispersofTheWoods.mp3",
         "The Adventure of the Lost City": "lost_city.mp3",
         "The Mystery of the Hidden Treasure": "hidden_treasure.mp3",
-        "The Journey to the Enchanted Forest": "enchanted_forest.mp3",
         "The Tale of the Brave Knight": "brave_knight.mp3",
         "The Legend of the Golden Dragon": "golden_dragon.mp3"
     ]
@@ -172,17 +172,23 @@ struct ContentView: View {
     
     // Play the selected story's MP3 file
     private func playAudio() {
-        guard let mp3File = storyModel.selectedStoryMP3,
-              let path = Bundle.main.path(forResource: mp3File, ofType: nil) else {
-            print("MP3 file not found")
-            return
-        }
-        
-        do {
-            audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
-            audioPlayer?.play()
-        } catch {
-            print("Error playing MP3 file: \(error.localizedDescription)")
+        if let player = audioPlayer, player.isPlaying == false {
+            // If the player exists and is not playing, resume playback
+            player.play()
+        } else {
+            // Otherwise, create a new player and start playback
+            guard let mp3File = storyModel.selectedStoryMP3,
+                  let path = Bundle.main.path(forResource: mp3File, ofType: nil) else {
+                print("MP3 file not found")
+                return
+            }
+            
+            do {
+                audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
+                audioPlayer?.play()
+            } catch {
+                print("Error playing MP3 file: \(error.localizedDescription)")
+            }
         }
     }
     
