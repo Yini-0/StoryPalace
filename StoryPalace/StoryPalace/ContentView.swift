@@ -57,10 +57,10 @@ struct RotationKnob: View {
                     )
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the circle
                 
-                // Inner Knob Circle (centered)
+                // Inner Knob Circle (centered) - 90% of outer circle size
                 Circle()
                     .fill(Color.gray.opacity(0.2))
-                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.9, height: min(geometry.size.width, geometry.size.height) * 0.9) // 60% of outer circle size
+                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.9, height: min(geometry.size.width, geometry.size.height) * 0.9) // 90% of outer circle size
                     .overlay(
                         Circle()
                             .stroke(Color.blue, lineWidth: 4)
@@ -74,7 +74,7 @@ struct RotationKnob: View {
                     .cornerRadius(2) // Rounded corners (half of the width)
                     .offset(y: -min(geometry.size.width, geometry.size.height) * 0.32) // Position closer to the outer circle
                     .rotationEffect(.degrees(rotationAngle))
-                    .shadow(color: Color(hex: "#00000040"), radius: 4, x: 0, y: 4) // Drop shadow at the inner end
+                    .shadow(color: Color(hex: "#00000040"), radius: 4, x: 0, y: 2) // Drop shadow at the inner end
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the hand
             }
             .gesture(
