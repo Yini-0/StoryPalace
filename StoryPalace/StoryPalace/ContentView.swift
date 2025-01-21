@@ -60,7 +60,7 @@ struct RotationKnob: View {
                 // Inner Knob Circle (centered)
                 Circle()
                     .fill(Color.gray.opacity(0.2))
-                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.5, height: min(geometry.size.width, geometry.size.height) * 0.5) // 50% of outer circle size
+                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.9, height: min(geometry.size.width, geometry.size.height) * 0.9) // 50% of outer circle size
                     .overlay(
                         Circle()
                             .stroke(Color.blue, lineWidth: 4)
@@ -69,11 +69,12 @@ struct RotationKnob: View {
 
                 // Indicator hand (like a watch hand)
                 Rectangle()
-                    .fill(Color.blue)
-                    .frame(width: 4, height: min(geometry.size.width, geometry.size.height) * 0.4) // 40% of outer circle size
-                    .offset(y: -min(geometry.size.width, geometry.size.height) * 0.2) // Position the hand
+                    .fill(Color(hex: "#004D3D")) // Set color to #004D3D
+                    .frame(width: 6.25, height: min(geometry.size.width, geometry.size.height) * 0.12) // 12% of outer circle size (shorter)
+                    .cornerRadius(2) // Rounded corners (half of the width)
+                    .offset(y: -min(geometry.size.width, geometry.size.height) * 0.32) // Position closer to the outer circle
                     .rotationEffect(.degrees(rotationAngle))
-                    .shadow(color: .gray.opacity(0.5), radius: 3, x: 1, y: 1)
+                    .shadow(color: Color(hex: "#00000040"), radius: 4, x: 0, y: 4) // Drop shadow at the inner end
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the hand
             }
             .gesture(
@@ -213,6 +214,33 @@ struct ContentView: View {
         audioPlayer?.stop()
         audioPlayer = nil
         isPlaying = false
+    }
+}
+
+// Extension to use hex colors
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let a, r, g, b: UInt64
+        switch hex.count {
+        case 3: // RGB (12-bit)
+            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: // RGB (24-bit)
+            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: // ARGB (32-bit)
+            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (a, r, g, b) = (255, 0, 0, 0)
+        }
+        self.init(
+            .sRGB,
+            red: Double(r) / 255,
+            green: Double(g) / 255,
+            blue: Double(b) / 255,
+            opacity: Double(a) / 255
+        )
     }
 }
 
