@@ -116,10 +116,11 @@ struct ContentView: View {
                         speakStoryTitle()
                     }
 
-                // Navigation Buttons
-                HStack {
+                // Navigation and Play/Pause Buttons in One Line
+                HStack(spacing: 40) { // Adjust spacing as needed
+                    // Previous Story Button
                     Button(action: {
-                        moveStory(by: 1)
+                        moveStory(by: -1)
                     }) {
                         Image(systemName: "backward.end.fill")
                             .resizable()
@@ -127,10 +128,18 @@ struct ContentView: View {
                             .foregroundColor(.blue)
                     }
 
-                    Spacer()
-
+                    // Play/Pause Button
                     Button(action: {
-                        moveStory(by: -1)
+                        togglePlayPause()
+                    }) {
+                        Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                            .font(.system(size: 44))
+                            .foregroundColor(.blue)
+                    }
+
+                    // Next Story Button
+                    Button(action: {
+                        moveStory(by: 1)
                     }) {
                         Image(systemName: "forward.end.fill")
                             .resizable()
@@ -139,15 +148,6 @@ struct ContentView: View {
                     }
                 }
                 .padding(.horizontal, 50)
-
-                // Play/Pause Button
-                Button(action: {
-                    togglePlayPause()
-                }) {
-                    Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                        .font(.system(size: 44))
-                        .foregroundColor(.blue)
-                }
             }
             .padding()
             .frame(width: geometry.size.width, height: geometry.size.height) // Use full screen size
