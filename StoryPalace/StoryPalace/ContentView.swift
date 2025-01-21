@@ -78,10 +78,10 @@ struct RotationKnob: View {
                 Rectangle()
                     .fill(Color(hex: "#004D3D")) // Set color to #004D3D
                     .frame(width: 6.25, height: min(geometry.size.width, geometry.size.height) * 0.12) // 12% of outer circle size (shorter)
-                    .cornerRadius(2) // Rounded corners (half of the width)
-                    .offset(y: -min(geometry.size.width, geometry.size.height) * 0.32) // Position closer to the outer circle
+                    .cornerRadius(5) // Rounded corners (half of the width)
+                    .offset(y: -min(geometry.size.width, geometry.size.height) * 0.275) // Position closer to the outer circle
                     .rotationEffect(.degrees(rotationAngle))
-                    .shadow(color: Color(hex: "#00000040"), radius: 4, x: 0, y: 2) // Drop shadow at the inner end
+                    .shadow(color: Color(hex: "#00000040"), radius: 4, x: 0, y: 4) // Drop shadow at the inner end
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the hand
             }
             .gesture(
