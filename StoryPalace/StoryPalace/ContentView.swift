@@ -60,7 +60,7 @@ struct RotationKnob: View {
                 // Inner Knob Circle (centered)
                 Circle()
                     .fill(Color.gray.opacity(0.2))
-                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.9, height: min(geometry.size.width, geometry.size.height) * 0.9) // 50% of outer circle size
+                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.9, height: min(geometry.size.width, geometry.size.height) * 0.9) // 60% of outer circle size
                     .overlay(
                         Circle()
                             .stroke(Color.blue, lineWidth: 4)
@@ -126,7 +126,7 @@ struct ContentView: View {
                         Image(systemName: "backward.end.fill")
                             .resizable()
                             .frame(width: 30, height: 30)
-                            .foregroundColor(.blue)
+                            .foregroundColor(Color(hex: "#004D3D")) // Use #004D3D
                     }
 
                     // Play/Pause Button
@@ -135,7 +135,7 @@ struct ContentView: View {
                     }) {
                         Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                             .font(.system(size: 44))
-                            .foregroundColor(.blue)
+                            .foregroundColor(Color(hex: "#004D3D")) // Use #004D3D
                     }
 
                     // Next Story Button
@@ -145,7 +145,7 @@ struct ContentView: View {
                         Image(systemName: "forward.end.fill")
                             .resizable()
                             .frame(width: 30, height: 30)
-                            .foregroundColor(.blue)
+                            .foregroundColor(Color(hex: "#004D3D")) // Use #004D3D
                     }
                 }
                 .padding(.horizontal, 50)
