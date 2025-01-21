@@ -49,21 +49,28 @@ struct RotationKnob: View {
             ZStack {
                 // Outer Knob Circle (centered)
                 Circle()
-                    .fill(Color.gray.opacity(0.2))
+                    .fill(Color.white.opacity(0.2))
                     .frame(width: min(geometry.size.width, geometry.size.height) * 0.8, height: min(geometry.size.width, geometry.size.height) * 0.8) // 80% of available space
                     .overlay(
                         Circle()
-                            .stroke(Color.blue, lineWidth: 4)
+                            .stroke(Color.blue, lineWidth: 1)
                     )
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the circle
                 
-                // Inner Knob Circle (centered) - 90% of outer circle size
+                // Inner Knob Circle (centered) - 90% of outer circle size with radial gradient
                 Circle()
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.9, height: min(geometry.size.width, geometry.size.height) * 0.9) // 90% of outer circle size
+                    .fill(
+                        RadialGradient(
+                            gradient: Gradient(colors: [Color(hex: "#E7DFDD"), Color(hex: "#FCFBFA")]),
+                            center: .center,
+                            startRadius: 0,
+                            endRadius: min(geometry.size.width, geometry.size.height) * 0 / 100 // Half of the inner circle's size
+                        )
+                    )
+                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.7, height: min(geometry.size.width, geometry.size.height) * 0.7) // 90% of outer circle size
                     .overlay(
                         Circle()
-                            .stroke(Color.blue, lineWidth: 4)
+                            .stroke(Color.blue, lineWidth: 1)
                     )
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the circle
 
