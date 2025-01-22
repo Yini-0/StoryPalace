@@ -10,7 +10,7 @@ struct StoryModel {
         "The Tale of the Brave Knight",
         "The Legend of the Golden Dragon"
     ]
-
+    
     var mp3Files: [String: String] = [
         "The Journey to the Enchanted Forest": "Enchantedforest-e-1-WhispersofTheWoods.mp3",
         "The Adventure of the Lost City": "lost_city.mp3",
@@ -18,21 +18,21 @@ struct StoryModel {
         "The Tale of the Brave Knight": "brave_knight.mp3",
         "The Legend of the Golden Dragon": "golden_dragon.mp3"
     ]
-
+    
     var selectedStoryIndex: Int = 0
-
+    
     var selectedStoryTitle: String {
         return stories[selectedStoryIndex]
     }
-
+    
     var selectedStoryMP3: String? {
         return mp3Files[selectedStoryTitle]
     }
-
+    
     mutating func moveToNextStory() {
         selectedStoryIndex = (selectedStoryIndex + 1) % stories.count
     }
-
+    
     mutating func moveToPreviousStory() {
         selectedStoryIndex = (selectedStoryIndex - 1 + stories.count) % stories.count
     }
@@ -43,7 +43,7 @@ struct RotationKnob: View {
     @Binding var rotationAngle: Double
     @Binding var selectedStoryIndex: Int
     let totalStories: Int
-
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -57,23 +57,22 @@ struct RotationKnob: View {
                     )
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the circle
                 
-                // Inner Knob Circle (centered) - 90% of outer circle size with radial gradient
+                // Inner Knob Circle (centered) - 70% of outer circle size with linear gradient
                 Circle()
                     .fill(
-                        RadialGradient(
-                            gradient: Gradient(colors: [Color(hex: "#E7DFDD"), Color(hex: "#FCFBFA")]),
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: min(geometry.size.width, geometry.size.height) * 0 / 100 // Half of the inner circle's size
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color(hex: "#FCFBFA"), Color(hex: "#E7DFDD")]),
+                            startPoint: UnitPoint(x: 0.75, y: 0.933), // 5 o'clock position
+                            endPoint: UnitPoint(x: 0.25, y: 0.067)     // 11 o'clock position
                         )
                     )
-                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.7, height: min(geometry.size.width, geometry.size.height) * 0.7) // 90% of outer circle size
+                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.7, height: min(geometry.size.width, geometry.size.height) * 0.7)
                     .overlay(
                         Circle()
                             .stroke(Color.blue, lineWidth: 1)
                     )
-                    .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the circle
-
+                    .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+                
                 // Indicator hand (like a watch hand)
                 Rectangle()
                     .fill(Color(hex: "#004D3D")) // Set color to #004D3D
@@ -91,7 +90,7 @@ struct RotationKnob: View {
                         let angle = atan2(vector.dy, vector.dx) * 180 / .pi
                         let newRotationAngle = (angle + 360).truncatingRemainder(dividingBy: 360)
                         rotationAngle = newRotationAngle
-
+                        
                         // Update selected story index based on rotation
                         let stepSize = 360.0 / Double(totalStories)
                         selectedStoryIndex = Int((newRotationAngle / stepSize).rounded()) % totalStories
@@ -108,7 +107,7 @@ struct ContentView: View {
     @State private var isPlaying: Bool = false
     @State private var audioPlayer: AVAudioPlayer?
     private let speechSynthesizer = AVSpeechSynthesizer()
-
+    
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 20) {
@@ -116,14 +115,14 @@ struct ContentView: View {
                 Text(storyModel.selectedStoryTitle)
                     .font(.title)
                     .padding()
-
+                
                 // Rotation Knob (centered)
                 RotationKnob(rotationAngle: $rotationAngle, selectedStoryIndex: $storyModel.selectedStoryIndex, totalStories: storyModel.stories.count)
                     .frame(width: min(geometry.size.width, geometry.size.height) * 0.8, height: min(geometry.size.width, geometry.size.height) * 0.8) // 80% of available space
                     .onChange(of: storyModel.selectedStoryIndex) { newIndex in
                         speakStoryTitle()
                     }
-
+                
                 // Navigation and Play/Pause Buttons in One Line
                 HStack(spacing: 40) { // Adjust spacing as needed
                     // Previous Story Button
@@ -135,7 +134,7 @@ struct ContentView: View {
                             .frame(width: 30, height: 30)
                             .foregroundColor(Color(hex: "#004D3D")) // Use #004D3D
                     }
-
+                    
                     // Play/Pause Button
                     Button(action: {
                         togglePlayPause()
@@ -144,7 +143,7 @@ struct ContentView: View {
                             .font(.system(size: 44))
                             .foregroundColor(Color(hex: "#004D3D")) // Use #004D3D
                     }
-
+                    
                     // Next Story Button
                     Button(action: {
                         moveStory(by: 1)
@@ -161,18 +160,18 @@ struct ContentView: View {
             .frame(width: geometry.size.width, height: geometry.size.height) // Use full screen size
         }
     }
-
+    
     // Move to the next or previous story
     private func moveStory(by offset: Int) {
         // Stop the currently playing audio
         stopAudio()
-
+        
         // Update the selected story index
         let newIndex = (storyModel.selectedStoryIndex + offset + storyModel.stories.count) % storyModel.stories.count
         storyModel.selectedStoryIndex = newIndex
         rotationAngle = Double(newIndex) * (360.0 / Double(storyModel.stories.count))
     }
-
+    
     // Toggle play/pause for audio
     private func togglePlayPause() {
         if isPlaying {
@@ -182,13 +181,13 @@ struct ContentView: View {
         }
         isPlaying.toggle()
     }
-
+    
     private func speakStoryTitle() {
         let utterance = AVSpeechUtterance(string: storyModel.selectedStoryTitle)
         utterance.voice = AVSpeechSynthesisVoice(identifier: "en-GB")
         speechSynthesizer.speak(utterance)
     }
-
+    
     // Play the selected story's MP3 file
     private func playAudio() {
         if let player = audioPlayer, player.isPlaying == false {
@@ -201,7 +200,7 @@ struct ContentView: View {
                 print("MP3 file not found")
                 return
             }
-
+            
             do {
                 audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
                 audioPlayer?.play()
@@ -210,12 +209,12 @@ struct ContentView: View {
             }
         }
     }
-
+    
     // Pause the audio
     private func pauseAudio() {
         audioPlayer?.pause()
     }
-
+    
     // Stop the audio
     private func stopAudio() {
         audioPlayer?.stop()
