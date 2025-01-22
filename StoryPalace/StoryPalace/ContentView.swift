@@ -47,15 +47,21 @@ struct RotationKnob: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Outer Knob Circle (centered)
+                // Outer Knob Circle (centered) with linear gradient
                 Circle()
-                    .fill(Color.white.opacity(0.2))
-                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.8, height: min(geometry.size.width, geometry.size.height) * 0.8) // 80% of available space
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color(hex: "#EEE7E4"), Color(hex: "#F9F6F5")]),
+                            startPoint: UnitPoint(x: 0.75, y: 0.933), // 5 o'clock position
+                            endPoint: UnitPoint(x: 0.25, y: 0.067)     // 11 o'clock position
+                        )
+                    )
+                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.8, height: min(geometry.size.width, geometry.size.height) * 0.8)
                     .overlay(
                         Circle()
-                            .stroke(Color.blue, lineWidth: 1)
+                            .stroke(Color.white, lineWidth: 1)
                     )
-                    .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the circle
+                    .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 
                 // Inner Knob Circle (centered) - 70% of outer circle size with linear gradient
                 Circle()
@@ -69,7 +75,7 @@ struct RotationKnob: View {
                     .frame(width: min(geometry.size.width, geometry.size.height) * 0.7, height: min(geometry.size.width, geometry.size.height) * 0.7)
                     .overlay(
                         Circle()
-                            .stroke(Color.blue, lineWidth: 1)
+                            .stroke(Color.white, lineWidth: 0.1)
                     )
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 
