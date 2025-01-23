@@ -145,15 +145,17 @@ struct ContentView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 103) { // 👈 Changed from 20 to 103
-                // Selected Story Title
+            VStack(spacing: 0) { // 👈 Remove default VStack spacing
+                // Story Title (centered in available space above outer circle)
                 Text(storyModel.selectedStoryTitle)
                     .font(.title)
-                    .padding()
+                    .frame(maxHeight: .infinity) // 👈 Take all available space
+                    .padding(.horizontal)
                 
                 // Rotation Knob (centered)
                 RotationKnob(rotationAngle: $rotationAngle, selectedStoryIndex: $storyModel.selectedStoryIndex, totalStories: storyModel.stories.count)
                     .frame(width: 244, height: 244) // 👈 Fixed size to match outer circle
+                    .padding(.bottom, 103) // 👈 Maintain 103pt gap to buttons
                     .onChange(of: storyModel.selectedStoryIndex) { newIndex in
                         speakStoryTitle()
                     }
