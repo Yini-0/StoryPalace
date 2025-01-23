@@ -47,19 +47,28 @@ struct RotationKnob: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Outer Knob Circle (centered) with linear gradient
+                // Outer Knob Circle with gradient stroke
                 Circle()
                     .fill(
                         LinearGradient(
                             gradient: Gradient(colors: [Color(hex: "#EEE7E4"), Color(hex: "#F9F6F5")]),
-                            startPoint: UnitPoint(x: 0.75, y: 0.933), // 5 o'clock position
-                            endPoint: UnitPoint(x: 0.25, y: 0.067)     // 11 o'clock position
+                            startPoint: UnitPoint(x: 0.75, y: 0.933),
+                            endPoint: UnitPoint(x: 0.25, y: 0.067)
                         )
                     )
                     .frame(width: min(geometry.size.width, geometry.size.height) * 0.8, height: min(geometry.size.width, geometry.size.height) * 0.8)
                     .overlay(
                         Circle()
-                            .stroke(Color.white, lineWidth: 1)
+                            .inset(by: 0.5)
+                        // Gradient stroke from white to #CDC3C0
+                            .stroke(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color(hex: "#FFFFFF"), Color(hex: "#CDC3C0")]),
+                                    startPoint: UnitPoint(x: 0.75, y: 0.933), // Match knob's gradient direction
+                                    endPoint: UnitPoint(x: 0.25, y: 0.067)
+                                ),
+                                lineWidth: 1
+                            )
                     )
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 
