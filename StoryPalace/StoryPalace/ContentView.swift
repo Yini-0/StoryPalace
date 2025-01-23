@@ -159,14 +159,14 @@ struct ContentView: View {
                     }
                 
                 // Navigation and Play/Pause Buttons in One Line
-                HStack(spacing: 40) { // Adjust spacing as needed
+                HStack(spacing: 65) { // Adjust spacing as needed
                     // Previous Story Button
                     Button(action: {
                         moveStory(by: -1)
                     }) {
                         Image(systemName: "backward.end.fill")
                             .resizable()
-                            .frame(width: 30, height: 30)
+                            .frame(width: 24, height: 25.76)
                             .foregroundColor(Color(hex: "#004D3D")) // Use #004D3D
                     }
                     
@@ -175,7 +175,7 @@ struct ContentView: View {
                         togglePlayPause()
                     }) {
                         Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                            .font(.system(size: 44))
+                            .font(.system(size: 58))
                             .foregroundColor(Color(hex: "#004D3D")) // Use #004D3D
                     }
                     
@@ -185,7 +185,7 @@ struct ContentView: View {
                     }) {
                         Image(systemName: "forward.end.fill")
                             .resizable()
-                            .frame(width: 30, height: 30)
+                            .frame(width: 24, height: 25.76)
                             .foregroundColor(Color(hex: "#004D3D")) // Use #004D3D
                     }
                 }
