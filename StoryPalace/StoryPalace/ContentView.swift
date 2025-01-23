@@ -148,7 +148,8 @@ struct ContentView: View {
             VStack(spacing: 0) { // 👈 Remove default VStack spacing
                 // Story Title (centered in available space above outer circle)
                 Text(storyModel.selectedStoryTitle)
-                    .font(.title)
+                    .font(.custom("Dosis-Regular", size: 25)) // 👈 Custom font
+                    .foregroundColor(Color(hex: "#004D3D")) // 👈 Added color modifier
                     .frame(maxHeight: .infinity) // 👈 Take all available space
                     .padding(.horizontal)
                 
