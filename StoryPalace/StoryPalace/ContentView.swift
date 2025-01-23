@@ -47,7 +47,7 @@ struct RotationKnob: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Outer Knob Circle with three shadows
+                // Outer Knob Circle (fixed 244x244 size)
                 Circle()
                     .fill(
                         LinearGradient(
@@ -56,7 +56,7 @@ struct RotationKnob: View {
                             endPoint: UnitPoint(x: 0.25, y: 0.067)
                         )
                     )
-                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.8, height: min(geometry.size.width, geometry.size.height) * 0.8)
+                    .frame(width: 244, height: 244) // 👈 Fixed size
                     .overlay(
                         Circle()
                             .inset(by: 0.5)
@@ -92,16 +92,16 @@ struct RotationKnob: View {
                     )
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 
-                // Inner Knob Circle (centered) - 70% of outer circle size with linear gradient
+                // Inner Knob Circle (90% of 244 = ~219.6 points)
                 Circle()
                     .fill(
                         LinearGradient(
                             gradient: Gradient(colors: [Color(hex: "#FCFBFA"), Color(hex: "#E7DFDD")]),
-                            startPoint: UnitPoint(x: 0.75, y: 0.933), // 5 o'clock position
-                            endPoint: UnitPoint(x: 0.25, y: 0.067)     // 11 o'clock position
+                            startPoint: UnitPoint(x: 0.75, y: 0.933),
+                            endPoint: UnitPoint(x: 0.25, y: 0.067)
                         )
                     )
-                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.7, height: min(geometry.size.width, geometry.size.height) * 0.7)
+                    .frame(width: 219.6, height: 219.6) // 👈 90% of 244
                     .overlay(
                         Circle()
                             .stroke(Color.white, lineWidth: 0.2)
@@ -153,7 +153,7 @@ struct ContentView: View {
                 
                 // Rotation Knob (centered)
                 RotationKnob(rotationAngle: $rotationAngle, selectedStoryIndex: $storyModel.selectedStoryIndex, totalStories: storyModel.stories.count)
-                    .frame(width: min(geometry.size.width, geometry.size.height) * 0.8, height: min(geometry.size.width, geometry.size.height) * 0.8) // 80% of available space
+                    .frame(width: 244, height: 244) // 👈 Fixed size to match outer circle
                     .onChange(of: storyModel.selectedStoryIndex) { newIndex in
                         speakStoryTitle()
                     }
