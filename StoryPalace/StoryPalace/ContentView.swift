@@ -47,7 +47,7 @@ struct RotationKnob: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Outer Knob Circle with gradient stroke
+                // Outer Knob Circle with shadow
                 Circle()
                     .fill(
                         LinearGradient(
@@ -60,15 +60,21 @@ struct RotationKnob: View {
                     .overlay(
                         Circle()
                             .inset(by: 0.5)
-                        // Gradient stroke from white to #CDC3C0
                             .stroke(
                                 LinearGradient(
                                     gradient: Gradient(colors: [Color(hex: "#FFFFFF"), Color(hex: "#CDC3C0")]),
-                                    startPoint: UnitPoint(x: 0.75, y: 0.933), // Match knob's gradient direction
+                                    startPoint: UnitPoint(x: 0.75, y: 0.933),
                                     endPoint: UnitPoint(x: 0.25, y: 0.067)
                                 ),
                                 lineWidth: 1
                             )
+                    )
+                    // Add drop shadow here
+                    .shadow(
+                        color: Color(hex: "#AE968E").opacity(0.5), // 50% opacity
+                        radius: 8, // Adjust blur radius as needed
+                        x: 0,      // Horizontal offset
+                        y: 8       // Vertical offset (downward)
                     )
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 
