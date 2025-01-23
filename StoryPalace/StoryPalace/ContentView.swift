@@ -47,7 +47,7 @@ struct RotationKnob: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Outer Knob Circle with shadow
+                // Outer Knob Circle with two shadows
                 Circle()
                     .fill(
                         LinearGradient(
@@ -69,12 +69,19 @@ struct RotationKnob: View {
                                 lineWidth: 1
                             )
                     )
-                    // Add drop shadow here
+                // First shadow (existing)
                     .shadow(
-                        color: Color(hex: "#AE968E").opacity(0.5), // 50% opacity
-                        radius: 8, // Adjust blur radius as needed
-                        x: 0,      // Horizontal offset
-                        y: 8       // Vertical offset (downward)
+                        color: Color(hex: "#AE968E").opacity(0.5),
+                        radius: 8,
+                        x: 0,
+                        y: 8
+                    )
+                // Second shadow (new)
+                    .shadow(
+                        color: Color.black.opacity(0.25), // #000000 at 25% opacity
+                        radius: 60, // Large blur radius
+                        x: 0,
+                        y: 31 // Vertical offset of 31 points
                     )
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 
