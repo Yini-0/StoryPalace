@@ -92,7 +92,7 @@ struct RotationKnob: View {
                     )
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 
-                // Inner Knob Circle (90% of 244 = ~219.6 points)
+                // Inner Knob Circle (fixed size 224x224)
                 Circle()
                     .fill(
                         LinearGradient(
@@ -101,7 +101,7 @@ struct RotationKnob: View {
                             endPoint: UnitPoint(x: 0.25, y: 0.067)
                         )
                     )
-                    .frame(width: 219.6, height: 219.6) // 👈 90% of 244
+                    .frame(width: 224, height: 224) // 👈 Fixed size
                     .overlay(
                         Circle()
                             .stroke(Color.white, lineWidth: 0.2)
@@ -113,7 +113,7 @@ struct RotationKnob: View {
                     .fill(Color(hex: "#004D3D")) // Set color to #004D3D
                     .frame(width: 6.25, height: min(geometry.size.width, geometry.size.height) * 0.12) // 12% of outer circle size (shorter)
                     .cornerRadius(5) // Rounded corners (half of the width)
-                    .offset(y: -min(geometry.size.width, geometry.size.height) * 0.275) // Position closer to the outer circle
+                    .offset(y: -92.36) // 👈 New offset to place 5px inside inner circle
                     .rotationEffect(.degrees(rotationAngle))
                     .shadow(color: Color(hex: "#000000").opacity(0.25), radius: 4, x: 0, y: 4) // Drop shadow at the inner end
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the hand
