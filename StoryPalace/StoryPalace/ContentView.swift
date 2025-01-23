@@ -145,7 +145,7 @@ struct ContentView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 20) {
+            VStack(spacing: 103) { // 👈 Changed from 20 to 103
                 // Selected Story Title
                 Text(storyModel.selectedStoryTitle)
                     .font(.title)
