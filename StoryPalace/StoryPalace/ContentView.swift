@@ -75,7 +75,7 @@ struct RotationKnob: View {
                     .frame(width: min(geometry.size.width, geometry.size.height) * 0.7, height: min(geometry.size.width, geometry.size.height) * 0.7)
                     .overlay(
                         Circle()
-                            .stroke(Color.white, lineWidth: 0.1)
+                            .stroke(Color.white, lineWidth: 0.2)
                     )
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 
@@ -164,6 +164,7 @@ struct ContentView: View {
             }
             .padding()
             .frame(width: geometry.size.width, height: geometry.size.height) // Use full screen size
+            .background(Color(hex: "#FAF1EE").ignoresSafeArea()) // Background color added here
         }
     }
     
